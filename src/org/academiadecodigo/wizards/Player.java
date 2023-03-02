@@ -27,6 +27,7 @@ public class Player implements Runnable {
 
     public Player(Socket playerSocket) {
         this.playerSocket = playerSocket;
+        hand = new LinkedList<>();
         try {
             prompt = new Prompt(playerSocket.getInputStream(), new PrintStream(playerSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(playerSocket.getInputStream()));
@@ -36,10 +37,14 @@ public class Player implements Runnable {
         }
     }
 
-    public void getName() {
+    public void chooseName() {
         StringInputScanner nameScanner = new StringInputScanner();
         nameScanner.setMessage("What's your user name?");
         name = prompt.getUserInput(nameScanner);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void chooseCard() throws IOException {
