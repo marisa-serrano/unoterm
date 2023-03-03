@@ -67,12 +67,42 @@ public class Server {
     }
 
     public void listen() throws IOException {
+
+        String artUno = "\n" +
+                "                                           ,╓╔╗@▒▒╣╣╣╬╬╬╣╣╣▒▒@╗µ,\n" +
+                "                                     ,╓@▒╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╝╙└╓▄▄▄▄▄▄,\n" +
+                "                                 ,╗▒╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╙ ▄▌▀▀▄≥≥φφ≥≥╦╫▀▌▄\n" +
+                "                             ,╔▒╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╝╙╩╬╬╝└╓▓▀╓φ░ΓΓΓΓΓΓΓΓΓΓΓφ≥▀▓\n" +
+                "                          .#╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╝╙└,▄▄▀█ ╚`╓██;φΓΓΓ╙Q▄▓▓▓▓▄Γ╙ΓΓΓ░[▀▌\n" +
+                "                        ╔╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╜ ▄█▌╠≤φφ/█ ▓██«ΓΓΓ╙▄██████████▄╚ΓΓΓφ╨▓\n" +
+                "                     ,@╬╬╬╬╬╬╬╬╬╬╝╜╙└╙╣╬╬╬ ▓█▓▓█'ΓΓΓφ╙███┌ΓΓΓΓ▐█╙╓╓╙▀██▓▓▓█▌7ΓΓΓφ╟▌\n" +
+                "                   .║╬╬╬╬╬╬╣╨╙,▄▄Æ▀▀▀▀▄,└╝⌐╫█▓▓██\"ΓΓΓφ╙██]ΓΓΓε╫⌐╞╬╬╬╣╕╙█████µ░ΓΓΓ █\n" +
+                "                 ,å╬╬╬╣╙└▄▄▌▀▀██'░░ΓΓφ≥╠▀▌▄ ▓████▌7ΓΓΓ≥╫█ ΓΓΓ░╙▌ ╣╬╬╬╬▒ ████▌░ΓΓΓ¬█\n" +
+                "                é╬╬╬╩ ▄██┘≥░░░┘██\"ΓΓΓΓΓΓ░φ╥▀▓█████▄╚ΓΓΓε█▌╙ΓΓΓ≥▀▌ ╢╬╬╬╬ ╫███┌ΓΓΓΓ]█\n" +
+                "             ,▄µ╙╬╬µ'██▓▓█\"ΓΓΓφ╙█▌7ΓΓΓ░7░ΓΓΓφ≥╫████µφΓΓΓ~█▄╙ΓΓΓφ╙▓▄,└╙╙,███╓φΓΓΓ⌐█\n" +
+                "        ▄▄▀▀▀▄[█ ╚╬╣ ▓█▓██▓7ΓΓΓ≥╫█▄╚ΓΓΓε¥▄²φΓΓΓφ≥╠▀█─░ΓΓ░└█▌\"φΓΓΓφ≥╠▀▀▀▀▄φφΓΓΓδ,█¬\n" +
+                "      ▄███⌐░ΓΓ░/█ ╢╬▒ █████▌╚ΓΓΓε██µφΓΓΓ,███▄└φΓΓΓ░φ┐\"ΓΓΓφ╙██▄└╙ΓΓΓΓΓΓΓΓΓΓΓ░╙╓▓▀\n" +
+                "     ╙█████\"ΓΓΓφ╙█ ╣╬▒ █████▄φΓΓΓ,██ ░ΓΓ░└█████▄Γ╙ΓΓΓΓΓΓΓΓ≥╙████▌▄Γ\"²²²²\"▄▄▓██─\n" +
+                "      ╫█████\\ΓΓΓφ╫▌`╬╬╕ █████⌐░ΓΓ░⌐██\"ΓΓΓφ╙███████▓▄7φΓΓΓΓΓε▓██████████████▀\n" +
+                "       █████▌╙ΓΓΓ≥▓▄└╬╬⌐╙█████\"ΓΓΓφ╙██7ΓΓΓ≥╟█████████▓▄└φ░╚²,██▀██████▀▀└\n" +
+                "        ███▓█▄φΓΓΓ»█µ╚╬╣ ╟████▌φΓΓΓ~██▌╙ΓΓΓε▓µ ╙█████████████╙┌▒@@╗@@▒Å\n" +
+                "         █▓▓▓█µ░ΓΓΓ⌐█─╙╬╣ ████Ö░ΓΓΓ⌐███▄φΓΓΓ,█ ╙▒╓╙▀█████▀▀├╓╣╬╬╬╬╬╬╬`\n" +
+                "         └█████└░ΓΓΓ≈▀▓▄▄╓▓██╓φΓΓΓδ╓████⌐²│▄▄██ ╫╬╬▒µ,╓╓#▒╣╬╬╬╬╬╬╬╝└\n" +
+                "          ╙█████▄φΓΓΓ░φ≥╡╡≥φφΓΓΓΓ∩▄█████████▀┌╔╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╩\n" +
+                "           ▀██████▄╙ΓΓΓΓΓΓΓΓΓδ²▐▄▓└ ╫███▀╙╓╓#╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╝╙\n" +
+                "            ╙███████▓▄▄▄▄▄▄▄▓██▀ ╔╣╣╓╓╗▒╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╝╙\n" +
+                "              ╙█████████████▀╙,@╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╜`\n" +
+                "                 └╙▀▀▀▀▀╙╙╓╔▒╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╩╙\n" +
+                "                     \"╚╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╩╙└\n" +
+                "                            └└╙╙╙╙╙╙└└\n" +
+                "    \n\n\n";
         while (players.size() != playerNum) {
             clientSocket = serverSocket.accept();
             Player player = new Player(clientSocket);
             players.add(player);
             fixedPool.submit(player);
             player.getOut().write("You have successfully joined!\n\n");
+            player.getOut().write(artUno);
             player.getOut().flush();
         }
     }
@@ -148,9 +178,10 @@ public class Server {
         player.getOut().write("You drew [" + card.toString() + "]\n\n");
         player.getOut().flush();
         for (Player p : players) {
-            if(!p.equals(player)){
-            p.getOut().write(player.getName() + " drew a card!\n");
-        }}
+            if (!p.equals(player)) {
+                p.getOut().write(player.getName() + " drew a card!\n");
+            }
+        }
     }
 
     public void compareCards(Player player, String card) throws IOException {
@@ -201,15 +232,14 @@ public class Server {
             if (p.getHand().size() == 0) {
                 winner = p.getName();
                 win = true;
+                for (Player p2 : players) {
+                    p2.getOut().write("\n" + winner + " won the game!");
+                    p2.getOut().flush();
+                }
+                fixedPool.shutdown();
+                serverSocket.close();
+                System.exit(0);
             }
-        }
-        if (win) {
-            for (Player p : players) {
-                p.getOut().write(winner + " won the game!");
-                p.getOut().flush();
-            }
-            fixedPool.shutdown();
-            serverSocket.close();
         }
         return win;
     }
