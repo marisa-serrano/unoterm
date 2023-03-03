@@ -39,9 +39,14 @@ public class Player implements Runnable {
 
     public void chooseName() {
         StringInputScanner nameScanner = new StringInputScanner();
-        nameScanner.setMessage("What's your user name?");
+        nameScanner.setMessage("What's your user name?\n");
         name = prompt.getUserInput(nameScanner);
     }
+
+    public BufferedReader getIn() {
+        return in;
+    }
+
 
     public String getName() {
         return name;
@@ -51,16 +56,27 @@ public class Player implements Runnable {
         return out;
     }
 
-    public void chooseCard() throws IOException {
+    public String chooseCard() throws IOException {
         Set<String> handSet = new HashSet<>();
+        out.write("\nYour cards: \n");
+        handSet.add("DRAW");
+        handSet.add("draw");
+        handSet.add("Draw");
         for (Card card : hand) {
             handSet.add(card.toString());
+            handSet.add(card.toString().toLowerCase());
+            out.write("[" + card + "]" + " ");
+            out.flush();
         }
         StringSetInputScanner cardScanner = new StringSetInputScanner(handSet);
-        cardScanner.setMessage("Play a card.");
+        cardScanner.setMessage("\n\nPlay a card:\n");
         cardScanner.setError("You don't have that card!");
         String cardString = prompt.getUserInput(cardScanner).toUpperCase();
-        out.write(cardString);
+        return cardString;
+    }
+
+    public String readCardChosen() throws IOException {
+        return in.readLine();
     }
 
     public LinkedList<Card> getHand() {
@@ -69,6 +85,13 @@ public class Player implements Runnable {
 
     @Override
     public void run() {
+        chooseName();
+        try {
+            out.write("\nWaiting for other players...\n\n");
+            out.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

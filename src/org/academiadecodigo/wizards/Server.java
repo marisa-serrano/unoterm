@@ -29,11 +29,8 @@ public class Server {
     public static int playerNum;
     private LinkedList<Player> players;
     private ExecutorService fixedPool;
-    private BufferedReader in;
-    private BufferedWriter out;
     private Deck deck;
     private LinkedList<Card> discardedPile;
-
     private Card lastCardPlayed;
     private Card cardPlayed;
 
@@ -41,8 +38,8 @@ public class Server {
         // Grab port number and max player count from args, else initialize with some defaults
         if (args.length != 2) {
             port = 8080;
-            playerNum = 4;
-        }   else {
+            playerNum = 2;
+        } else {
             port = Integer.parseInt(args[0]);
             playerNum = Integer.parseInt(args[1]);
         }
@@ -50,6 +47,8 @@ public class Server {
         Server server = new Server();
         try {
             server.listen();
+            server.gameLoop();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -60,7 +59,6 @@ public class Server {
             serverSocket = new ServerSocket(port);
             players = new LinkedList<>();
             deck = new Deck();
-            deck.createDeck();
             discardedPile = new LinkedList<>();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -74,28 +72,60 @@ public class Server {
             Player player = new Player(clientSocket);
             players.add(player);
             fixedPool.submit(player);
-            player.getOut().write("You have successfully joined!\n Waiting for other players...");
+            player.getOut().write("You have successfully joined!\n\n");
             player.getOut().flush();
         }
     }
 
-    public void gameLoop() {
-        /*getFirstCard();
+    public void gameLoop() throws IOException {
+        while (!readyToStart()) {
+            readyToStart();
+        }
+        getFirstCard();
         giveHands();
-        player.chooseCard();
-        compareCards(player);
-        playCard(player);*/
+
+        while (!checkWin()) {
+            for (Player player : players) {
+                player.getOut().write("\nIt's your turn to play!\n");
+                player.getOut().flush();
+
+                for (Player p : players) {
+                    checkWin();
+                    if (!p.equals(player)) {
+                        p.getOut().write("\nIt's " + player.getName() + "'s turn to play!\n");
+                        p.getOut().flush();
+                    }
+                }
+                compareCards(player, player.chooseCard());
+                showLastCard();
+                // TODO:do something else
+            }
+        }
     }
 
-    public void getFirstCard() {
+    public boolean readyToStart() {
+        int playersReady = 0;
+        for (Player p : players) {
+            if (p.getName() != null) {
+                playersReady++;
+            }
+        }
+        return playersReady == players.size();
+    }
+
+    public void getFirstCard() throws IOException {
         int num = (int) (Math.random() * deck.getCards().size());
         lastCardPlayed = deck.getCards().get(num);
         deck.getCards().remove(num);
+        for (Player p : players) {
+            p.getOut().write("\nStarting card: \n[" + lastCardPlayed.toString() + "]\n");
+            p.getOut().flush();
+        }
     }
 
     public void giveHands() {
         for (int i = 0; i < players.size(); i++) {
-            for (int j = 0; j < 4; j++) {
+            for (int j = 0; j < 1; j++) {
                 int num = (int) (Math.random() * deck.getCards().size());
                 players.get(i).getHand().add(deck.getCards().get(num));
                 deck.getCards().remove(num);
@@ -103,41 +133,84 @@ public class Server {
         }
     }
 
-    public void compareCards(Player player) throws IOException {
-        String cardPlayedString = in.readLine();
-        for (int i = 0; i < deck.getCards().size(); i++) {
-            if (deck.getCards().get(i).toString().equals(cardPlayedString)) {
-                cardPlayed = deck.getCards().get(i);
+    public void showLastCard() throws IOException {
+        for (Player p : players) {
+            p.getOut().write("\n------------ NEXT PLAY ------------\n");
+            p.getOut().write("\nCURRENT CARD: \n[" + lastCardPlayed + "]\n");
+            p.getOut().flush();
+        }
+    }
+
+    public void draw(Player player) throws IOException {
+        int num = (int) (Math.random() * deck.getCards().size());
+        player.getHand().add(deck.getCards().get(num));
+        Card card = deck.getCards().remove(num);
+        player.getOut().write("You drew [" + card.toString() + "]\n\n");
+        player.getOut().flush();
+        for (Player p : players) {
+            if(!p.equals(player)){
+            p.getOut().write(player.getName() + " drew a card!\n");
+        }}
+    }
+
+    public void compareCards(Player player, String card) throws IOException {
+        if (card.toUpperCase().equals("DRAW")) {
+            draw(player);
+            return;
+        }
+        for (int i = 0; i < player.getHand().size(); i++) {
+            if (player.getHand().get(i).toString().equals(card)) {
+                cardPlayed = player.getHand().get(i);
                 break;
             }
         }
         if (cardPlayed.getColor().equals(lastCardPlayed.getColor()) || cardPlayed.getNum() == lastCardPlayed.getNum()) {
             playCard(player);
         } else {
-            out.write("You can't play that card!");
-            player.chooseCard();
-            compareCards(player);
+            player.getOut().write("You can't play that card!");
+            // sus v
+            compareCards(player, player.chooseCard());
         }
+
     }
 
-    public void playCard(Player player) {
+    public void playCard(Player player) throws IOException {
         discardedPile.add(cardPlayed);
         lastCardPlayed = cardPlayed;
+        player.getOut().write("You played [" + cardPlayed.toString() + "].\n");
+
+        for (Player p : players) {
+            if (!p.equals(player)) {
+                p.getOut().write(player.getName() + " played [" + cardPlayed.toString() + "].\n");
+                p.getOut().flush();
+            }
+        }
         for (int i = 0; i < player.getHand().size(); i++) {
             if (player.getHand().get(i).equals(cardPlayed)) {
                 player.getHand().remove(i);
-                break;
+                break; //TODO: não está a dar remove;
             }
         }
     }
 
-    public void checkWin(){
+
+    public boolean checkWin() throws IOException {
+        boolean win = false;
+        String winner = null;
         for (Player p : players) {
-            if(p.getHand().size()==0){
-                System.out.println(p.getName() + " won!");
+            if (p.getHand().size() == 0) {
+                winner = p.getName();
+                win = true;
             }
-
         }
+        if (win) {
+            for (Player p : players) {
+                p.getOut().write(winner + " won the game!");
+                p.getOut().flush();
+            }
+            fixedPool.shutdown();
+            serverSocket.close();
+        }
+        return win;
     }
-
 }
