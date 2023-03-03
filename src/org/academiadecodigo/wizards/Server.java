@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /*
 TODO: instanciar a thread;
@@ -24,7 +25,8 @@ public class Server {
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    private int port;
+    public static int port;
+    public static int playerNum;
     private LinkedList<Player> players;
     private ExecutorService fixedPool;
     private BufferedReader in;
@@ -36,8 +38,18 @@ public class Server {
     private Card cardPlayed;
 
     public static void main(String[] args) {
+        // Grab port number and max player count from args, else initialize with some defaults
+        if (args.length != 2) {
+            port = 8080;
+            playerNum = 4;
+        }   else {
+            port = Integer.parseInt(args[0]);
+            playerNum = Integer.parseInt(args[1]);
+        }
+
         Server server = new Server();
-        try {server.listen();
+        try {
+            server.listen();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -45,27 +57,34 @@ public class Server {
 
     public Server() {
         try {
-            serverSocket = new ServerSocket(8080); //TODO: pôr dinâmico;
+            serverSocket = new ServerSocket(port);
             players = new LinkedList<>();
             deck = new Deck();
             deck.createDeck();
             discardedPile = new LinkedList<>();
-            clientSocket = serverSocket.accept();
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        fixedPool = Executors.newFixedThreadPool(playerNum);
     }
 
     public void listen() throws IOException {
-        Player player = new Player(clientSocket); // Colocar dentro de um while até ao limite de 4 playes;
-        players.add(player);
-        getFirstCard();
+        while (players.size() != playerNum) {
+            clientSocket = serverSocket.accept();
+            Player player = new Player(clientSocket);
+            players.add(player);
+            fixedPool.submit(player);
+            player.getOut().write("You have successfully joined!\n Waiting for other players...");
+            player.getOut().flush();
+        }
+    }
+
+    public void gameLoop() {
+        /*getFirstCard();
         giveHands();
         player.chooseCard();
         compareCards(player);
-        playCard(player);
+        playCard(player);*/
     }
 
     public void getFirstCard() {
@@ -112,7 +131,7 @@ public class Server {
         }
     }
 
-    public void win(){
+    public void checkWin(){
         for (Player p : players) {
             if(p.getHand().size()==0){
                 System.out.println(p.getName() + " won!");
@@ -120,15 +139,5 @@ public class Server {
 
         }
     }
-    /*
-    private class ServerWorker {
 
-        public ServerWorker() {
-            try {
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }*/
 }

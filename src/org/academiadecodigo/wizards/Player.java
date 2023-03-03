@@ -47,6 +47,10 @@ public class Player implements Runnable {
         return name;
     }
 
+    public BufferedWriter getOut() {
+        return out;
+    }
+
     public void chooseCard() throws IOException {
         Set<String> handSet = new HashSet<>();
         for (Card card : hand) {
