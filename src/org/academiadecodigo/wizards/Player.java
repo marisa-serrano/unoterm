@@ -10,17 +10,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-/*
-user name
-hand - tipo cards
-
- */
 public class Player implements Runnable {
 
     private String name;
     private LinkedList<Card> hand;
     private Socket playerSocket;
-    private Prompt prompt; //só um prompt e vários scanners;
+    private Prompt prompt;
 
     private BufferedReader in;
     private BufferedWriter out;
@@ -85,8 +80,14 @@ public class Player implements Runnable {
 
     @Override
     public void run() {
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         chooseName();
         try {
+            out.write("Welcome, " + name + "!");
             out.write("\nWaiting for other players...\n\n");
             out.flush();
         } catch (IOException e) {
