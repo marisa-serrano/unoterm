@@ -7,20 +7,6 @@ import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/*
-TODO: instanciar a thread;
-TODO: menu;
-TODO: após adicionar as theards e ter vários clientes:
-  TODO: método showHand;
-    - ter vários jogadores - À medida que se vão juntando até chegra a 4
-    - o primeiro jogador só joga quando todos os players tiverem colocado o user name - dar print para play;
-
------------- COMPLEXIDADE --------------------
-- ter que dizer UNO para ganhar;
-- anunciar o numero da cartas de cada jogador a cada jogada;
-- add: reverse, +2 e block;
-
- */
 public class Server {
 
     private ServerSocket serverSocket;
@@ -46,6 +32,7 @@ public class Server {
 
         Server server = new Server();
         try {
+            // Initialize the server
             server.listen();
             server.gameLoop();
 
@@ -95,8 +82,13 @@ public class Server {
                 "                 └╙▀▀▀▀▀╙╙╓╔▒╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╩╙\n" +
                 "                     \"╚╣╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣╩╙└\n" +
                 "                            └└╙╙╙╙╙╙└└\n" +
-                "    \n\n\n";
+                "    \n\n\n" +
+                "-RULES- \n\n" +
+                "Each player starts with 4 cards.\n" +
+                "First one to empty their hand wins.\n" +
+                "Use 'draw' to pick up another card from the deck.\n";
         while (players.size() != playerNum) {
+            // Wait for all players to join before starting the game
             clientSocket = serverSocket.accept();
             Player player = new Player(clientSocket);
             players.add(player);
@@ -128,7 +120,6 @@ public class Server {
                 }
                 compareCards(player, player.chooseCard());
                 showLastCard();
-                // TODO:do something else
             }
         }
     }
@@ -155,7 +146,7 @@ public class Server {
 
     public void giveHands() {
         for (int i = 0; i < players.size(); i++) {
-            for (int j = 0; j < 1; j++) {
+            for (int j = 0; j < 4; j++) {
                 int num = (int) (Math.random() * deck.getCards().size());
                 players.get(i).getHand().add(deck.getCards().get(num));
                 deck.getCards().remove(num);
@@ -172,6 +163,16 @@ public class Server {
     }
 
     public void draw(Player player) throws IOException {
+        if (deck.getCards().isEmpty() && discardedPile.isEmpty()) {
+            for (Player p : players) {
+                p.getOut().write(player.getName() + " tried to draw, but there are no more cards available in the deck.");
+                p.getOut().flush();
+            }
+            return;
+        }   else if (deck.getCards().isEmpty()) {
+            refillDeck();
+        }
+
         int num = (int) (Math.random() * deck.getCards().size());
         player.getHand().add(deck.getCards().get(num));
         Card card = deck.getCards().remove(num);
@@ -181,6 +182,14 @@ public class Server {
             if (!p.equals(player)) {
                 p.getOut().write(player.getName() + " drew a card!\n");
             }
+        }
+    }
+
+    public void refillDeck() {
+        int pileSize = discardedPile.size();
+        for (int i = 0; i < pileSize; i++) {
+            int randomPos = (int) (Math.random() * discardedPile.size());
+            deck.setCards(discardedPile.remove(randomPos));
         }
     }
 
@@ -219,7 +228,7 @@ public class Server {
         for (int i = 0; i < player.getHand().size(); i++) {
             if (player.getHand().get(i).equals(cardPlayed)) {
                 player.getHand().remove(i);
-                break; //TODO: não está a dar remove;
+                break;
             }
         }
     }

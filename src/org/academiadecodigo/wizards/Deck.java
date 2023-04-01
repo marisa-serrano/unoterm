@@ -34,4 +34,8 @@ public class Deck {
     public LinkedList<Card> getCards() {
         return cards;
     }
+
+    public void setCards(Card card) {
+        cards.add(card);
+    }
 }
